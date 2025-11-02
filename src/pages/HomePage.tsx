@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductCarousel from '../components/ProductCarousel';
 import ProductGrid from '../components/ProductGrid';
 
@@ -9,7 +10,7 @@ const categories = [
   { name: 'Masala & Dry Fruits', imageUrl: 'https://i.ibb.co/2j2BqjB/masala.png' },
   { name: 'Breakfast & Sauces', imageUrl: 'https://i.ibb.co/b3vTQzQ/breakfast.png' },
   { name: 'Packaged Food', imageUrl: 'https://i.ibb.co/KKhs02W/packaged.png' },
-  { name: 'Zepto Cafe', imageUrl: 'https://i.ibb.co/9TRc4Tq/cafe.png' },
+  { name: 'Nest Cafe', imageUrl: 'https://i.ibb.co/9TRc4Tq/cafe.png' },
   { name: 'Tea, Coffee & More', imageUrl: 'https://i.ibb.co/Yy4d0xX/tea.png' },
   { name: 'Ice Creams & More', imageUrl: 'https://i.ibb.co/B2k0L1P/icecream.png' },
   { name: 'Frozen Food', imageUrl: 'https://i.ibb.co/HTn3pBt/frozen.png' },
@@ -17,7 +18,7 @@ const categories = [
 
 const buyAgain = [
     { name: 'All Items', imageUrl: 'https://i.ibb.co/mHw3f6h/all.png' },
-    { name: 'Zepto Cafe', imageUrl: 'https://i.ibb.co/9TRc4Tq/cafe.png' },
+    { name: 'Nest Cafe', imageUrl: 'https://i.ibb.co/9TRc4Tq/cafe.png' },
     { name: 'Fruits & Vegetables', imageUrl: 'https://i.ibb.co/bJC2wT9/vegetables.png' },
     { name: 'Dairy Products', imageUrl: 'https://i.ibb.co/VvZv1pP/dairy.png' },
     { name: 'Snacks & Drinks', imageUrl: 'https://i.ibb.co/KKhs02W/packaged.png' },
@@ -543,6 +544,15 @@ const juicesHealthyDrinks = [
 ];
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (categoryName: string) => {
+    if (categoryName === 'Zepto Cafe') {
+      navigate('/cafe');
+    }
+    // Add other category navigation here if needed
+  };
+
   return (
     <div className="bg-gray-50 p-2 pb-24 md:p-4">
       {/* Hero Banner */}
@@ -583,11 +593,15 @@ const HomePage: React.FC = () => {
         <h2 className="mb-2 text-xl font-bold md:text-2xl">Categories</h2>
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
           {categories.map((category) => (
-            <div key={category.name} className="text-center">
+            <div 
+              key={category.name} 
+              className="cursor-pointer text-center transition-transform hover:scale-105"
+              onClick={() => handleCategoryClick(category.name)}
+            >
               <img
                 src={category.imageUrl}
                 alt={category.name}
-                className="mx-auto h-20 w-20 object-contain transition-transform hover:scale-105 md:h-24 md:w-24"
+                className="mx-auto h-20 w-20 object-contain md:h-24 md:w-24"
               />
               <p className="mt-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium text-gray-700 md:text-sm">{category.name}</p>
             </div>
@@ -613,22 +627,22 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Product Grid - Fruits & Vegetables */}
-      <ProductGrid title="Fruits & Vegetables" products={vegetables} />
+      <ProductGrid title="Fruits & Vegetables" categorySlug="fruits-vegetables" products={vegetables} />
 
       {/* Rice Section */}
-      <ProductCarousel title="Rice" products={rice} />
+      <ProductCarousel title="Rice" categorySlug="rice" products={rice} />
 
       {/* Dal & Pulses Section */}
-      <ProductCarousel title="Dal & Pulses" products={dalsPulses} />
+      <ProductCarousel title="Dal & Pulses" categorySlug="dal-pulses" products={dalsPulses} />
 
       {/* Spices & Seasonings Section */}
-      <ProductCarousel title="Spices & Seasonings" products={spicesSeasonings} />
+      <ProductCarousel title="Spices & Seasonings" categorySlug="spices-seasonings" products={spicesSeasonings} />
 
       {/* Chips & Crisps Section */}
-      <ProductCarousel title="Chips & Crisps" products={chipsCrisps} />
+      <ProductCarousel title="Chips & Crisps" categorySlug="chips-crisps" products={chipsCrisps} />
 
       {/* Juices & Healthy Drinks Section */}
-      <ProductCarousel title="Juices & Healthy Drinks" products={juicesHealthyDrinks} />
+      <ProductCarousel title="Juices & Healthy Drinks" categorySlug="juices-healthy-drinks" products={juicesHealthyDrinks} />
 
       {/* Legacy sections */}
       <ProductCarousel title="Salt, Sugar & Jaggery" products={sugarAndJaggery} />

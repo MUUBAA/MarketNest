@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 
 interface ProductGridProps {
   title: string;
+  categorySlug?: string;
   products: {
     name: string;
     price: string;
@@ -15,14 +17,27 @@ interface ProductGridProps {
   }[];
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ title, products }) => {
+const ProductGrid: React.FC<ProductGridProps> = ({ title, categorySlug, products }) => {
+  const navigate = useNavigate();
+  
+  const handleSeeAllClick = () => {
+    if (categorySlug) {
+      navigate(`/category/${categorySlug}`);
+    }
+  };
+
   return (
     <div className="mb-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-        <button className="text-sm font-medium text-pink-500 hover:text-pink-600">
-          See All →
-        </button>
+        {categorySlug && (
+          <button 
+            onClick={handleSeeAllClick}
+            className="text-sm font-medium text-pink-500 hover:text-pink-600"
+          >
+            See All →
+          </button>
+        )}
       </div>
       
       {/* Mobile: Horizontal scroll, Tablet+: Grid layout */}

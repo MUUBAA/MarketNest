@@ -30,14 +30,14 @@ const Footer: React.FC = () => {
       </div>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/3">
-          <h1 className="text-4xl font-bold text-red-600 italic mb-2">zepto</h1>
+          <h1 className="text-4xl font-bold text-red-600 italic mb-2">Nest</h1>
           <div className="flex space-x-2">
             <a href="#" className="text-gray-800 hover:text-red-600">IG</a>
             <a href="#" className="text-gray-800 hover:text-red-600">TW</a>
             <a href="#" className="text-gray-800 hover:text-red-600">FB</a>
             <a href="#" className="text-gray-800 hover:text-red-600">LI</a>
           </div>
-          <p className="text-sm text-gray-500 mt-2">© Zepto Marketplace Private Limited</p>
+          <p className="text-sm text-gray-500 mt-2">© Nest Marketplace Private Limited</p>
         </div>
         <div className="w-full md:w-1/6">
           <h3 className="font-bold">Home</h3>

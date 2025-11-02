@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 
 interface ProductCarouselProps {
   title: string;
+  categorySlug?: string;
   products: {
     name: string;
     price: string;
@@ -12,14 +14,27 @@ interface ProductCarouselProps {
   }[];
 }
 
-const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, products }) => {
+const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, categorySlug, products }) => {
+  const navigate = useNavigate();
+  
+  const handleSeeAllClick = () => {
+    if (categorySlug) {
+      navigate(`/category/${categorySlug}`);
+    }
+  };
+
   return (
     <div className="mb-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-        <button className="text-sm font-medium text-pink-500 hover:text-pink-600">
-          See All →
-        </button>
+        {categorySlug && (
+          <button 
+            onClick={handleSeeAllClick}
+            className="text-sm font-medium text-pink-500 hover:text-pink-600"
+          >
+            See All →
+          </button>
+        )}
       </div>
       
       <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-2">
