@@ -2,10 +2,10 @@ import { Star } from 'lucide-react';
 import React from 'react';
 
 interface ProductCardProps {
-  name: string;
-  price: string;
+  itemName: string;
+  itemPrice: string;
   originalPrice?: string;
-  imageUrl: string;
+  itemUrl: string;
   discount?: string;
   rating?: number;
   reviews?: string;
@@ -13,10 +13,10 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
-  name,
-  price,
+  itemName,
+  itemPrice,
   originalPrice,
-  imageUrl,
+  itemUrl,
   discount,
   rating,
   reviews,
@@ -28,8 +28,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="relative mb-3">
         <img 
           className="h-32 w-full rounded-md object-cover" 
-          src={imageUrl} 
-          alt={name} 
+          src={itemUrl} 
+          alt={itemName} 
         />
         <button className="absolute bottom-2 right-2 cursor-pointer rounded-md border border-pink-500 bg-white px-3 py-1 text-sm font-semibold text-pink-500 transition-colors hover:bg-pink-50">
           ADD
@@ -38,7 +38,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Price section */}
       <div className="mb-2 flex items-baseline gap-2">
-        <span className="rounded bg-green-600 px-2 py-1 text-sm font-bold text-white">{price}</span>
+        <span className="rounded bg-green-600 px-2 py-1 text-sm font-bold text-white">{itemPrice}</span>
         {originalPrice && (
           <span className="text-sm text-gray-500 line-through">{originalPrice}</span>
         )}
@@ -50,7 +50,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       )}
 
       {/* Product Name */}
-      <h3 className="mb-1 line-clamp-2 text-sm font-medium leading-tight text-gray-800">{name}</h3>
+      <h3 className="mb-1 line-clamp-2 text-sm font-medium leading-tight text-gray-800">{itemName}</h3>
 
       {/* Weight */}
       {weight && (

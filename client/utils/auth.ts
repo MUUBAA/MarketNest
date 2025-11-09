@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
-import { RootState } from "../redux/stores";
+import type { RootState } from "../redux/stores";
 import { decrypt } from "./encryptionUtils";
 
 

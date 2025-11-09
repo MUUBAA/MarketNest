@@ -1,96 +1,54 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.Models;
+using Server.Data.Contract.Products;
+using Server.Data.Dto;
+using Server.Data.Entities.Products;
+using Server.Services.ProductService;
+using Server.Utils;
 
 namespace Server.Controllers;
-
+[Authorize]
 [ApiController]
-[Route("api/[controller]")]
-public class ProductsController : ControllerBase
+public class ProductsController : BaseController
 {
-    private static readonly List<Product> Products = new()
-    {
-        new Product
-        {
-            Id = 1,
-            Name = "Fresh Onion",
-            Price = "₹26",
-            OriginalPrice = "₹54",
-            Discount = "₹28 OFF",
-            ImageUrl = "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/483611a.jpg?ts=1641540272",
-            Weight = "1 Pack / 900 -1000 gm"
-        },
-        new Product
-        {
-            Id = 2,
-            Name = "Coriander leaves",
-            Price = "₹8",
-            OriginalPrice = "₹16",
-            Discount = "₹8 OFF",
-            ImageUrl = "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/462971a.jpg?ts=1667826193",
-            Weight = "1 pack (100 g)"
-        },
-        new Product
-        {
-            Id = 3,
-            Name = "Parrys White Label Sugar",
-            Price = "₹48",
-            OriginalPrice = "₹65",
-            Discount = "₹17 OFF",
-            ImageUrl = "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/1000109a.jpg?ts=1689339414",
-            Rating = 4.8,
-            Reviews = "137.5k",
-            Weight = "1 pack (1 kg)"
-        }
-    };
+    private readonly IProductService _productService;
 
-    [HttpGet]
-    public ActionResult<IEnumerable<Product>> GetAll()
+    public ProductsController(IProductService productService)
     {
-        return Ok(Products);
+        _productService = productService;
     }
 
-    [HttpGet("{id:int}")]
-    public ActionResult<Product> GetById(int id)
+   [HttpPost]
+   [Route("/product/create")]
+   public IActionResult CreateProduct([FromBody] ProductsContract request)
     {
-        var product = Products.FirstOrDefault(p => p.Id == id);
-        if (product is null) return NotFound();
-        return Ok(product);
+         _productService.CreateProduct(request);
+         
+        return Ok(new GenericApiResponse<string>(true, "Product Created Sucessfully", null));
     }
 
     [HttpPost]
-    public ActionResult<Product> Create(Product product)
+    [Route("/product/update")]
+    public IActionResult UpdateProduct([FromBody] ProductUpdate request)
     {
-        product.Id = Products.Any() ? Products.Max(p => p.Id) + 1 : 1;
-        Products.Add(product);
-        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+        var result = _productService.UpdateProduct(request);
+        return Ok(new GenericApiResponse<bool>(true, "Product Updated Sucessfully", result));
     }
-
-    [HttpPut("{id:int}")]
-    public IActionResult Update(int id, Product updated)
+    [HttpGet]
+    [Route("/product/get-by-id")]
+    public IActionResult GetProductById([FromRoute] int productId)
     {
-        var product = Products.FirstOrDefault(p => p.Id == id);
-        if (product is null) return NotFound();
-
-        product.Name = updated.Name;
-        product.Price = updated.Price;
-        product.OriginalPrice = updated.OriginalPrice;
-        product.ImageUrl = updated.ImageUrl;
-        product.Discount = updated.Discount;
-        product.Rating = updated.Rating;
-        product.Reviews = updated.Reviews;
-        product.Weight = updated.Weight;
-
-        return NoContent();
+        var product = _productService.GetProductById(productId);
+        return Ok(new GenericApiResponse<Products>(true, "Product Fetched Sucessfully", product));
     }
-
-    [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    [HttpPost]
+    [Route("/product/get-all")]
+    public IActionResult GetAllProducts()
     {
-        var product = Products.FirstOrDefault(p => p.Id == id);
-        if (product is null) return NotFound();
-        Products.Remove(product);
-        return NoContent();
+        var products = _productService.GetAllProducts();
+        return Ok(new GenericApiResponse<List<Products>>(true, "Products Fetched Sucessfully", products));
     }
 }
+
 
 

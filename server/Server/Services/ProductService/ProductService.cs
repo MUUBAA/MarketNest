@@ -1,0 +1,61 @@
+using Microsoft.EntityFrameworkCore;
+using Server.Data.Contract.Products;
+using Server.Data.Dto;
+using Server.Data.Entities.Products;
+using Server.Data.Repositories;
+using Server.Models;
+using Server.Services.CloudinaryService;
+using static Server.Data.Exceptions.DataExceptions;
+
+namespace Server.Services.ProductService
+{
+    public interface IProductService
+    {
+      void CreateProduct(ProductsContract products);
+      bool UpdateProduct(ProductUpdate productUpdate);
+      Products GetProductById(int productId);
+      List<Products> GetAllProducts();
+    }
+
+    public class ProductService(IProductsRepository productsRepository, Repository repository) : IProductService
+    {
+       private readonly IProductsRepository _productsRepository = productsRepository;
+
+       public void CreateProduct(ProductsContract products)
+       {
+            var product = new Products
+            {
+                ProductId = products.Id,
+                ItemName = products.ItemName,
+                ItemDescription = products.ItemDescription,
+                ItemPrice = products.ItemPrice,
+                CategoryId = products.CategoryId,
+                CategoryName = products.CategoryName,
+                StockQuantity = products.StockQuantity,
+                ItemUrl = products.ItemUrl,
+            };
+
+            var productId = _productsRepository.CreateProduct(product);
+            repository.SaveChanges();
+        }
+
+         public bool UpdateProduct(ProductUpdate productUpdate)
+        {
+            _productsRepository.UpdateProduct(productUpdate);
+            return true;
+        }
+
+        public List<Products> GetAllProducts()
+        {
+            var products = _productsRepository.GetAllProducts();
+            return products;
+        }
+        public Products GetProductById(int productId)
+        {
+            var product = _productsRepository.GetProductById(productId) ?? throw new NotFoundException("User not Found");
+            return product;
+        }
+
+
+    }
+}

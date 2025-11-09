@@ -6,6 +6,9 @@ using Server.Data.Repositories;
 using Server.Services;
 using Server.Services.AuthService;
 using Server.Services.MessageServices;
+using Server.Services.CloudinaryService;
+using Server.Services.ProductService;
+using Server.Services.Cache;
 using Server.Utils;
 
 namespace Server.Utils
@@ -35,7 +38,11 @@ namespace Server.Utils
             // Register HttpClient factory for external API calls
             services.AddHttpClient();
 
+            // Register Memory Cache
+            services.AddMemoryCache();
+
             // Registering Components
+            services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<UserContext, UserContext>();
             services.AddScoped<IUserContext, UserContext>();
@@ -43,6 +50,9 @@ namespace Server.Utils
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IEmailTemplate, EmailTemplate>();
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
+            services.AddScoped<IProductsRepository, ProductsRepository>();
+            services.AddScoped<IProductService, ProductService>();
             
             return Task.CompletedTask;
         }

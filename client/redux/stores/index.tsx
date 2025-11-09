@@ -1,4 +1,5 @@
 import  loginUserSlice  from "../slices/loginUser";
+import productsReducer from "../slices/productsSlice";
 import { persistSlice } from "../persistenceUtils";
 import  { combineReducers, configureStore, isAction } from "@reduxjs/toolkit";
 import type { Middleware } from "@reduxjs/toolkit";
@@ -7,6 +8,7 @@ import { encrypt } from "../../utils/encryptionUtils";
 
 const rootReducer = combineReducers({
     loginUser: persistSlice(loginUserSlice, { sliceKey: 'loginUser' }),
+    products: persistSlice(productsReducer, { sliceKey: 'products' }),
     // Add other slices here
 });
 

@@ -16,18 +16,6 @@ const categories = [
   { name: 'Frozen Food', imageUrl: 'https://i.ibb.co/HTn3pBt/frozen.png' },
 ];
 
-const buyAgain = [
-    { name: 'All Items', imageUrl: 'https://i.ibb.co/mHw3f6h/all.png' },
-    { name: 'Nest Cafe', imageUrl: 'https://i.ibb.co/9TRc4Tq/cafe.png' },
-    { name: 'Fruits & Vegetables', imageUrl: 'https://i.ibb.co/bJC2wT9/vegetables.png' },
-    { name: 'Dairy Products', imageUrl: 'https://i.ibb.co/VvZv1pP/dairy.png' },
-    { name: 'Snacks & Drinks', imageUrl: 'https://i.ibb.co/KKhs02W/packaged.png' },
-    { name: 'Grocery & Kitchen', imageUrl: 'https://i.ibb.co/Jq6M2hM/atta.png' },
-    { name: 'Sweets & Chocolates', imageUrl: 'https://i.ibb.co/B2k0L1P/icecream.png' },
-    { name: 'Beauty & Personal...', imageUrl: 'https://i.ibb.co/tZ2M4NL/beauty.png' },
-    { name: 'Household Essentials', imageUrl: 'https://i.ibb.co/LQrSc2f/household.png' },
-];
-
 const vegetables = [
   {
     name: 'Fresh Onion',
@@ -567,25 +555,6 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleBuyAgainClick = (categoryName: string) => {
-    // Map buy again items to their routes
-    const categoryRoutes: Record<string, string> = {
-      'All Items': '/',
-      'Nest Cafe': '/cafe',
-      'Fruits & Vegetables': '/fresh',
-      'Dairy Products': '/dairy',
-      'Snacks & Drinks': '/packaged-food',
-      'Grocery & Kitchen': '/atta-rice-oil-dals',
-      'Sweets & Chocolates': '/ice-creams-more',
-      'Beauty & Personal...': '/beauty',
-      'Household Essentials': '/home-kitchen',
-    };
-
-    const route = categoryRoutes[categoryName];
-    if (route) {
-      navigate(route);
-    }
-  };
 
   return (
     <div className="bg-gray-50 p-2 pb-24 md:p-4">
@@ -631,27 +600,6 @@ const HomePage: React.FC = () => {
               key={category.name} 
               className="cursor-pointer text-center transition-transform hover:scale-105"
               onClick={() => handleCategoryClick(category.name)}
-            >
-              <img
-                src={category.imageUrl}
-                alt={category.name}
-                className="mx-auto h-20 w-20 object-contain md:h-24 md:w-24"
-              />
-              <p className="mt-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium text-gray-700 md:text-sm">{category.name}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Buy Again Section */}
-      <div className="mb-8">
-        <h2 className="mb-2 text-xl font-bold md:text-2xl">Buy Again</h2>
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10">
-          {buyAgain.map((category) => (
-            <div 
-              key={category.name} 
-              className="cursor-pointer text-center transition-transform hover:scale-105"
-              onClick={() => handleBuyAgainClick(category.name)}
             >
               <img
                 src={category.imageUrl}
