@@ -6,7 +6,7 @@ using Server.Data.Entities.Products;
 using Server.Services.ProductService;
 using Server.Utils;
 
-namespace Server.Controllers;
+namespace Server.Controllers.ProductController;
 [Authorize]
 [ApiController]
 public class ProductsController : BaseController
@@ -43,12 +43,13 @@ public class ProductsController : BaseController
     }
     [HttpPost]
     [Route("/product/get-all")]
-    public IActionResult GetAllProducts()
+    public ActionResult<GenericApiResponse<PaginationResponse<Products>>> GetAllProducts([FromBody] ProductsContract request)
     {
-        var products = _productService.GetAllProducts();
-        return Ok(new GenericApiResponse<List<Products>>(true, "Products Fetched Sucessfully", products));
+        var products = _productService.GetAllProducts(request);
+        return Ok(new GenericApiResponse<PaginationResponse<Products>>(true, "Products Fetched Sucessfully", products));
     }
 }
+
 
 
 

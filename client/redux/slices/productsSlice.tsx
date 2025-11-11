@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchAllProducts } from "../thunk/productThunk";
+import { fetchAllProducts } from "../thunk/product";
 
-interface Product {
+export interface Product {
     productId: number;
     itemName: string;
     itemDescription: string;
@@ -23,6 +23,7 @@ interface Product {
 interface ProductState {
     products: Product[];
     loading: boolean;
+    totalItems: number;
     error: string | null;
     success: boolean;
 }
@@ -30,6 +31,7 @@ interface ProductState {
 const initialState: ProductState = {
     products: [],
     loading: false,
+    totalItems: 0,
     error: null,
     success: false,
 };

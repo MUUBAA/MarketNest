@@ -1,23 +1,51 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../redux/stores/index.js';
-import { fetchAllProducts, type ProductGetAllResponse } from '../../redux/thunk/productThunk.js';
+import { fetchAllProducts, type GetAllProductsPayload } from '../../redux/thunk/product.js';
 import ProductGrid from '../components/ProductGrid';
+import type {Product} from '../../redux/slices/productsSlice';
 
 const FreshPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { products, loading, error } = useSelector((state: RootState) => state.products);
-
+  const [products, setProducts] = useState<Product[]> ([]);
+  const { loading, error } = useSelector((state: RootState) => state.products);
+  
+  const FetchProducts = async () => {
+    try {
+      const preparePayload : GetAllProductsPayload = {
+        categoryId: 1, // Example categoryId for Fruits & Vegetables
+        itemName: "",
+        itemsPerPage: 20,
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: 0
+      };
+      const response = await dispatch(fetchAllProducts(preparePayload));
+      if (response.meta.requestStatus === 'fulfilled') {
+        if (Array.isArray(response.payload)) {
+          setProducts(response.payload);
+        } else if (response.payload && typeof response.payload === 'object') {
+          setProducts(response?.payload?.items || []); // Convert single product to array
+          console.log('Fetched products:', response.payload);
+        } else {
+          console.error('Unexpected response payload:', response.payload);
+          setProducts([]); // Fallback to an empty array
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
   useEffect(() => {
-    dispatch(fetchAllProducts({} as ProductGetAllResponse));
+    FetchProducts();
   }, [dispatch]);
 
   // Transform API products to match ProductGrid props
-  const transformedProducts = products.map((product: ProductGetAllResponse) => ({
-    itemName: product.itemName,
-    itemPrice: `₹${product.itemPrice}`,
-    itemUrl: product.itemUrl,
-    weight: product.itemDescription,
+  const transformedProducts = products.map((product: Product) => ({
+    itemName: product.itemName || 'Unknown Product',
+    itemPrice: product.itemPrice ? `₹${product.itemPrice}` : '₹0',
+    itemUrl: product.itemUrl || 'https://via.placeholder.com/150', // Placeholder image for missing URLs
+    itemDescription: product.itemDescription || 'No description available',
   }));
 
   return (

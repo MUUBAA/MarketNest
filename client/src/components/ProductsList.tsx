@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../redux/stores/index.js';
-import { fetchAllProducts, type ProductGetAllResponse } from '../../redux/thunk/productThunk.js';
+import { fetchAllProducts } from '../../redux/thunk/product.js';
 import ProductCard from './ProductCard';
 
 interface ProductsListProps {
-  category?: string;
+  categoryId?: number;
 }
 
-const ProductsList: React.FC<ProductsListProps> = ({ category }) => {
+const ProductsList: React.FC<ProductsListProps> = ({ categoryId }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { products, loading, error } = useSelector((state: RootState) => state.products);
 
   useEffect(() => {
-    dispatch(fetchAllProducts({} as ProductGetAllResponse));
-  }, [dispatch, category]);
+    dispatch(fetchAllProducts({ categoryId }));
+  }, [dispatch, categoryId]);
 
   if (loading) {
     return (

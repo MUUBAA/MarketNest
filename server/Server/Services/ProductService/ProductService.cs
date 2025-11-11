@@ -14,7 +14,7 @@ namespace Server.Services.ProductService
       void CreateProduct(ProductsContract products);
       bool UpdateProduct(ProductUpdate productUpdate);
       Products GetProductById(int productId);
-      List<Products> GetAllProducts();
+      PaginationResponse<Products> GetAllProducts(ProductsContract contract);
     }
 
     public class ProductService(IProductsRepository productsRepository, Repository repository) : IProductService
@@ -45,11 +45,18 @@ namespace Server.Services.ProductService
             return true;
         }
 
-        public List<Products> GetAllProducts()
+        public PaginationResponse<Products> GetAllProducts(ProductsContract contract)
         {
-            var products = _productsRepository.GetAllProducts();
-            return products;
+            var (totalItems, count, products) = _productsRepository.GetAllProducts(contract);
+            var response = new PaginationResponse<Products>
+            {
+                TotalItems = totalItems,
+                ItemsPerPage = count,
+                Items = products
+            };
+            return response;
         }
+        
         public Products GetProductById(int productId)
         {
             var product = _productsRepository.GetProductById(productId) ?? throw new NotFoundException("User not Found");

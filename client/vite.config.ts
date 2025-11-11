@@ -34,6 +34,11 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
       },
+      "^/cart/.*": {
+        target: "https://localhost:5200/",
+        secure: false,
+        changeOrigin: true,
+      },
     },
     port: 5015
   }

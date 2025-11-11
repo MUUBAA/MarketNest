@@ -4,11 +4,15 @@ import { persistSlice } from "../persistenceUtils";
 import  { combineReducers, configureStore, isAction } from "@reduxjs/toolkit";
 import type { Middleware } from "@reduxjs/toolkit";
 import { encrypt } from "../../utils/encryptionUtils";
+import cartSlice from "../slices/cartSlice";
+import userSlice from "../slices/userSlice";
 
 
 const rootReducer = combineReducers({
     loginUser: persistSlice(loginUserSlice, { sliceKey: 'loginUser' }),
     products: persistSlice(productsReducer, { sliceKey: 'products' }),
+    cart: persistSlice(cartSlice, { sliceKey: 'cart' }),
+    user: persistSlice(userSlice, { sliceKey: 'user' }),
     // Add other slices here
 });
 

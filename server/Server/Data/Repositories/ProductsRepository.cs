@@ -10,7 +10,7 @@ namespace Server.Data.Repositories
         int CreateProduct(Products products);
         void UpdateProduct(ProductUpdate productUpdate);
         Products? GetProductById(int productId);
-        List<Products> GetAllProducts();
+        (long, int, List<Products> products) GetAllProducts(ProductsContract contract);
         List<ProductSearchDto> SearchProductsByName(string itemName);
     }
     public class ProductsRepository(Repository repository) : IProductsRepository
@@ -63,9 +63,30 @@ namespace Server.Data.Repositories
             return  repository.Products.FirstOrDefault(p => p.Id == productId); 
         }
 
-        public List<Products> GetAllProducts()
+        public (long, int, List<Products> products) GetAllProducts(ProductsContract contract)
         {
-            return repository.Products.Where(p => !p.IsDeleted).ToList();
+              var page = contract.Page <= 0 ? 1 : contract.Page;
+              var pageSize = contract.PageSize <= 0 ? 10 : contract.PageSize;
+
+              var query = repository.Products.Where(c => !c.IsDeleted);
+              if(!string.IsNullOrEmpty(contract.ItemName))
+              {
+                  query = query.Where(p => p.ItemName != null && p.ItemName.Contains(contract.ItemName));
+              }
+              if(!string.IsNullOrEmpty(contract.CategoryName))
+              {
+                  query = query.Where(p => p.CategoryName != null && p.CategoryName.Contains(contract.CategoryName));
+              }
+            if (contract.CategoryId > 0)
+            {
+                query = query.Where(p => p.CategoryId == contract.CategoryId);
+            }
+              var totalItems = query.Count();
+              var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+              var products = query
+                  .Take(pageSize)
+                  .ToList();
+              return (totalItems, totalPages, products);
         }
         public List<ProductSearchDto> SearchProductsByName(string itemName)
         {

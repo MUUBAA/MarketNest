@@ -8,7 +8,9 @@ import { decrypt } from "./encryptionUtils";
 
 
 interface JwtPayload {
+    id: number;
     exp: number;
+    [key: string]: any;
 }
 
 export const useAuth = (isRegistration: boolean = false) => {

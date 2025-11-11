@@ -6,6 +6,7 @@ import { encrypt } from "../../utils/encryptionUtils";
 
 
 export interface UserData {
+    Id: number;
     Email: string
     Name: string
     CreatedAt: string;
@@ -16,7 +17,7 @@ export interface DecodedToken {
     UserData: UserData;
     IssuedAt: number;
     jti: string;
-    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": string;
+    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"?: string;
 }
 
 interface LoginState {

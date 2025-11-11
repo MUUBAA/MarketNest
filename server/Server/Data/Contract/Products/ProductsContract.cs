@@ -1,6 +1,6 @@
 ﻿namespace Server.Data.Contract.Products
 {
-    public class ProductsContract
+    public class ProductsContract : PaginationContract
     {
         public int Id { get; set; }
         public string? ItemName { get; set; }

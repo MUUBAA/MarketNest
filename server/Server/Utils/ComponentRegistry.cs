@@ -10,6 +10,7 @@ using Server.Services.CloudinaryService;
 using Server.Services.ProductService;
 using Server.Services.Cache;
 using Server.Utils;
+using Server.Services.CartServices;
 
 namespace Server.Utils
 {
@@ -53,7 +54,9 @@ namespace Server.Utils
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IProductsRepository, ProductsRepository>();
             services.AddScoped<IProductService, ProductService>();
-            
+            services.AddScoped<ICartRepository, CartRepository>();
+            services.AddScoped<ICartServices, CartServices>();
+
             return Task.CompletedTask;
         }
     }
