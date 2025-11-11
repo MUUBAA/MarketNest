@@ -24,7 +24,17 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
       },
-       "^/user/.*": {
+      "^/user/.*": {
+        target: "https://localhost:5200/",
+        secure: false,
+        changeOrigin: true,
+      },
+      "^/product/.*": {
+        target: "https://localhost:5200/",
+        secure: false,
+        changeOrigin: true,
+      },
+      "^/cart/.*": {
         target: "https://localhost:5200/",
         secure: false,
         changeOrigin: true,

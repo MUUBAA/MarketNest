@@ -11,7 +11,7 @@ namespace Server.Services.Cache
     }
     public class CacheService(IMemoryCache memoryCache) : ICacheService
     {
-        private readonly IMemoryCache _memoryCache;
+        private readonly IMemoryCache _memoryCache = memoryCache;
 
         public void ClearCache(string cacheKey)
         {

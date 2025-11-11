@@ -1,11 +1,61 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import type { AppDispatch, RootState } from '../../redux/stores/index.js';
+import { fetchAllProducts, type GetAllProductsPayload } from '../../redux/thunk/product.js';
 import ProductCard from '../components/ProductCard';
 import CategoryBanner from '../components/CategoryBanner';
+import type {Product} from '../../redux/slices/productsSlice';
 
 const RicePage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const [products, setProducts] = useState<Product[]>([]);
+  const { loading, error } = useSelector((state: RootState) => state.products);
+
+  const FetchProducts = async () => {
+      try {
+        const preparePayload : GetAllProductsPayload = {
+          categoryId: 3, // Example categoryId for Fruits & Vegetables
+          itemName: "",
+          itemsPerPage: 20,
+          totalItems: 0,
+          totalPages: 0,
+          currentPage: 0
+        };
+        const response = await dispatch(fetchAllProducts(preparePayload));
+        if (response.meta.requestStatus === 'fulfilled') {
+          if (Array.isArray(response.payload)) {
+            setProducts(response.payload);
+          } else if (response.payload && typeof response.payload === 'object') {
+            setProducts(response?.payload?.items || []); // Convert single product to array
+            console.log('Fetched products:', response.payload);
+          } else {
+            console.error('Unexpected response payload:', response.payload);
+            setProducts([]); // Fallback to an empty array
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      }
+    };
+
+  useEffect(() => {
+    FetchProducts();
+  }, [dispatch]);
+
+  // Transform API products to match ProductCard props
+  const transformedProducts = products.map((product: Product) => ({
+    itemName: product.itemName,
+    itemPrice: `₹${product.itemPrice}`,
+    originalPrice: product.itemPrice > 0 ? `₹${Math.round(product.itemPrice * 1.2)}` : undefined, // Example calculation
+    discount: product.itemPrice > 0 ? `₹${Math.round(product.itemPrice * 0.2)} OFF` : undefined, // Example calculation
+    itemUrl: product.itemUrl,
+    rating: 4.5, // Default rating
+    reviews: '100', // Default reviews
+    weight: product.itemDescription || '1 kg',
+  }));
 
   const banners = [
     {
@@ -34,49 +84,6 @@ const RicePage: React.FC = () => {
     }
   ];
 
-  const products = [
-    {
-      name: 'Shree Akshara Premium Steam Sona Masoori Rice',
-      price: '₹474',
-      originalPrice: '₹750',
-      discount: '₹276 OFF',
-      imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/b5ac6b32-7e46-4b15-9fa7-16dd8334b59e.jpg?ts=1709800030',
-      rating: 4.8,
-      reviews: '995',
-      weight: '1 pack (10 kg)',
-    },
-    {
-      name: 'India Gate Gold Standard Classic Basmati Rice | 2 Year...',
-      price: '₹1069',
-      originalPrice: '₹1255',
-      discount: '₹186 OFF',
-      imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/c2f5e39b-f9c7-4af2-bd66-85e8f8e86ccf.jpg?ts=1709800030',
-      rating: 4.7,
-      reviews: '607',
-      weight: '1 pack (5 kg)',
-    },
-    {
-      name: 'India Gate Basmati Rice Classic',
-      price: '₹640',
-      originalPrice: '₹750',
-      discount: '₹110 OFF',
-      imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/10791a.jpg?ts=1688978830',
-      rating: 4.6,
-      reviews: '1.2k',
-      weight: '1 pack (5 kg)',
-    },
-    {
-      name: 'Daawat Rozana Gold Basmati Rice',
-      price: '₹558',
-      originalPrice: '₹650',
-      discount: '₹92 OFF',
-      imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/10792a.jpg?ts=1688978830',
-      rating: 4.5,
-      reviews: '890',
-      weight: '1 pack (5 kg)',
-    },
-  ];
-
   return (
     <div className="bg-gray-50 min-h-screen pb-24">
       {/* Header with back button */}
@@ -102,12 +109,34 @@ const RicePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Products grid */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
-          {products.map((product, index) => (
-            <ProductCard key={`${product.name}-${index}`} {...product} />
-          ))}
-        </div>
+        {loading && (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && transformedProducts.length > 0 && (
+          <>
+            {/* Products grid */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+              {transformedProducts.map((product, index) => (
+                <ProductCard key={`${product.itemName}-${index}`} {...product} />
+              ))}
+            </div>
+          </>
+        )}
+
+        {!loading && !error && transformedProducts.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            No rice products available at the moment.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -34,6 +34,42 @@ import Footer from "./components/Footer";
 import BottomNav from "./components/BottomNav";
 import CartDrawer from "./components/CartDrawer";
 import { CartProvider, useCart } from "./contexts/CartContext";
+import type { ReactNode } from 'react';
+import React from 'react';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    // Update state so the next render shows the fallback UI.
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    // You can also log the error to an error reporting service
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children; 
+  }
+}
 
 function AppContent() {
   const { isCartOpen, closeCart } = useCart();
@@ -93,7 +129,9 @@ function App() {
   return (
     <BrowserRouter>
       <CartProvider>
-        <AppContent />
+        <ErrorBoundary>
+          <AppContent />
+        </ErrorBoundary>
       </CartProvider>
     </BrowserRouter>
   );

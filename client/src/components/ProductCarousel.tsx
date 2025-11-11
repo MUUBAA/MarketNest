@@ -6,10 +6,10 @@ interface ProductCarouselProps {
   title: string;
   categorySlug?: string;
   products: {
-    name: string;
-    price: string;
+    itemName: string;
+    itemPrice: string;
     originalPrice?: string;
-    imageUrl: string;
+    itemUrl: string;
     discount?: string;
   }[];
 }
@@ -40,7 +40,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, categorySlug, 
       
       <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-2">
         {products.map((product, index) => (
-          <div key={`${product.name}-${index}`} className="flex-shrink-0">
+          <div key={`${product.itemName}-${index}`} className="flex-shrink-0">
             <ProductCard {...product} />
           </div>
         ))}

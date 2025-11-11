@@ -1,34 +1,53 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '../../redux/stores/index.js';
+import { fetchAllProducts, type GetAllProductsPayload } from '../../redux/thunk/product.js';
 import ProductGrid from '../components/ProductGrid';
-
-const freshProducts = [
-  {
-    name: 'Fresh Onion',
-    price: '₹26',
-    originalPrice: '₹54',
-    discount: '₹28 OFF',
-    imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/483611a.jpg?ts=1641540272',
-    weight: '1 Pack / 900 -1000 gm',
-  },
-  {
-    name: 'Tomato Local',
-    price: '₹20',
-    originalPrice: '₹37',
-    discount: '₹17 OFF',
-    imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/448141a.jpg?ts=1692018823',
-    weight: '500 g',
-  },
-  {
-    name: 'Banana Robusta',
-    price: '₹21',
-    originalPrice: '₹39',
-    discount: '₹18 OFF',
-    imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/1000109a.jpg?ts=1689339414',
-    weight: '4 pcs',
-  },
-];
+import type {Product} from '../../redux/slices/productsSlice';
 
 const FreshPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const [products, setProducts] = useState<Product[]> ([]);
+  const { loading, error } = useSelector((state: RootState) => state.products);
+  
+  const FetchProducts = async () => {
+    try {
+      const preparePayload : GetAllProductsPayload = {
+        categoryId: 1, // Example categoryId for Fruits & Vegetables
+        itemName: "",
+        itemsPerPage: 20,
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: 0
+      };
+      const response = await dispatch(fetchAllProducts(preparePayload));
+      if (response.meta.requestStatus === 'fulfilled') {
+        if (Array.isArray(response.payload)) {
+          setProducts(response.payload);
+        } else if (response.payload && typeof response.payload === 'object') {
+          setProducts(response?.payload?.items || []); // Convert single product to array
+          console.log('Fetched products:', response.payload);
+        } else {
+          console.error('Unexpected response payload:', response.payload);
+          setProducts([]); // Fallback to an empty array
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
+  useEffect(() => {
+    FetchProducts();
+  }, [dispatch]);
+
+  // Transform API products to match ProductGrid props
+  const transformedProducts = products.map((product: Product) => ({
+    itemName: product.itemName || 'Unknown Product',
+    itemPrice: product.itemPrice ? `₹${product.itemPrice}` : '₹0',
+    itemUrl: product.itemUrl || 'https://via.placeholder.com/150', // Placeholder image for missing URLs
+    itemDescription: product.itemDescription || 'No description available',
+  }));
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
@@ -37,7 +56,27 @@ const FreshPage: React.FC = () => {
           <p className="mt-2 text-gray-600">Fresh fruits, vegetables, and organic products</p>
         </div>
         
-        <ProductGrid title="Fruits & Vegetables" products={freshProducts} />
+        {loading && (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && transformedProducts.length > 0 && (
+          <ProductGrid title="Fruits & Vegetables" products={transformedProducts} />
+        )}
+
+        {!loading && !error && transformedProducts.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            No products available at the moment.
+          </div>
+        )}
       </div>
     </div>
   );
