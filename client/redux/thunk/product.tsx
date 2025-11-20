@@ -13,6 +13,7 @@ export interface GetAllProductsPayload
   currentPage: number;
   categoryId?: number;
   itemName?: string;
+  pageSize?: number;
 
 }
 // Fetch all products

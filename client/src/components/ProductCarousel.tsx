@@ -1,10 +1,11 @@
+// ProductCarousel.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 
 interface ProductCarouselProps {
   title: string;
-  categorySlug?: string;
+  seeAllRoute?: string;
   products: {
     id: number;
     itemName: string;
@@ -15,13 +16,12 @@ interface ProductCarouselProps {
   }[];
 }
 
-const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, categorySlug, products }) => {
+const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, seeAllRoute, products }) => {
   const navigate = useNavigate();
   
   const handleSeeAllClick = () => {
-    if (categorySlug) {
-      // Navigate to specific route instead of generic category route
-      navigate(`/${categorySlug}`);
+    if (seeAllRoute) {
+      navigate(seeAllRoute);
     }
   };
 
@@ -29,7 +29,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, categorySlug, 
     <div className="mb-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-        {categorySlug && (
+        {seeAllRoute && (
           <button 
             onClick={handleSeeAllClick}
             className="cursor-pointer text-sm font-medium text-pink-500 hover:text-pink-600"

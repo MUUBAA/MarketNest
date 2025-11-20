@@ -12,8 +12,8 @@ using Server.Data.Repositories;
 namespace Server.Migrations
 {
     [DbContext(typeof(Repository))]
-    [Migration("20251113163740_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20251118111730_initialmigration")]
+    partial class initialmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -237,6 +237,11 @@ namespace Server.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("deleted_by");
 
+                    b.Property<string>("ErrorMessage")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("error_message");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
@@ -250,8 +255,24 @@ namespace Server.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("payment_method");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("tinyint(1)")
+                    b.Property<string>("RazorpayOrderId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("razorpay_order_id");
+
+                    b.Property<string>("RazorpayPaymentId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("razorpay_payment_id");
+
+                    b.Property<string>("RazorpaySignature")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("razorpay_signature");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("status");
 
                     b.Property<DateTime?>("UpdatedAt")

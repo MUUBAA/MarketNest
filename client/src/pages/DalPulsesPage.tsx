@@ -22,7 +22,8 @@ const DalPulsesPage: React.FC = () => {
           itemsPerPage: 20,
           totalItems: 0,
           totalPages: 0,
-          currentPage: 0
+          currentPage: 0,
+          pageSize: 60
         };
         const response = await dispatch(fetchAllProducts(preparePayload));
         if (response.meta.requestStatus === 'fulfilled') {

@@ -1,11 +1,65 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '../../redux/stores/index.tsx';
+import { fetchAllProducts, type GetAllProductsPayload } from '../../redux/thunk/product.tsx';
+import ProductGrid from '../components/ProductGrid';
 import ProductCarousel from '../components/ProductCarousel';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import type { Product } from '../../redux/slices/productsSlice.tsx';
 
 const CafePage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
+  const { loading, error } = useSelector((state: RootState) => state.products);
+
+  // Fetch cafe products from API (categoryId=4)
+  const FetchProducts = async () => {
+    try {
+      const preparePayload: GetAllProductsPayload = {
+        id: 0,
+        categoryId: 4, // Cafe category
+        itemName: '',
+        itemsPerPage: 20,
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: 0,
+        pageSize: 60
+      };
+      const response = await dispatch(fetchAllProducts(preparePayload));
+      if (response.meta.requestStatus === 'fulfilled') {
+        if (Array.isArray(response.payload)) {
+          setProducts(response.payload);
+        } else if (response.payload && typeof response.payload === 'object') {
+          setProducts(response?.payload?.items || []);
+        } else {
+          setProducts([]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+      setProducts([]);
+    }
+  };
+
+  useEffect(() => {
+    FetchProducts();
+  }, [dispatch]);
+
+  // Transform API products for ProductGrid/ProductCarousel
+  const transformedProducts = products.map((product: Product) => ({
+    id: product.id,
+    itemName: product.itemName || 'Unknown Product',
+    itemPrice: product.itemPrice ? `₹${product.itemPrice}` : '₹0',
+    itemUrl: product.itemUrl || 'https://via.placeholder.com/150',
+    itemDescription: product.itemDescription || 'No description available',
+    originalPrice: product.itemPrice ? `₹${product.itemPrice + 20}` : undefined, // Example
+    discount: product.itemPrice ? `₹20 OFF` : undefined,
+    rating: 4.2, // Placeholder, replace with real if available
+    reviews: '1k', // Placeholder, replace with real if available
+    weight: '1 unit', // Placeholder, replace with real if available
+  }));
 
   // Cafe banner data
   const cafeBanner = {
@@ -16,7 +70,7 @@ const CafePage: React.FC = () => {
     imageUrl: 'https://i.ibb.co/9TRc4Tq/cafe.png'
   };
 
-  // What's On Your Mind categories
+  // What's On Your Mind categories (static)
   const mindCategories = [
     { name: '✨ Bestsellers', imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/bestseller.jpg?ts=1709800030' },
     { name: 'Breakfast', imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/breakfast.jpg?ts=1709800030' },
@@ -24,250 +78,6 @@ const CafePage: React.FC = () => {
     { name: 'Chai', imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/chai.jpg?ts=1709800030' },
     { name: 'Coffee', imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/coffee.jpg?ts=1709800030' },
     { name: 'Desserts', imageUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/desserts.jpg?ts=1709800030' },
-  ];
-
-  // Cafe products for different sections
-  const cafeProducts = [
-    {
-      id: 6,
-      itemName: 'Vietnamese Cold Coffee',
-      itemPrice: '₹189',
-      originalPrice: '₹209',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/vietnamese_coffee.jpg?ts=1709800030',
-      weight: '450 ml',
-      rating: 4.4,
-      reviews: '117.5k'
-    },
-    {
-      id: 2,
-      itemName: 'Adrak Chai',
-      itemPrice: '₹129',
-      originalPrice: '₹149',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/adrak_chai.jpg?ts=1709800030',
-      weight: '250 ml',
-      rating: 4.2,
-      reviews: '22.5k'
-    },
-    {
-      id: 3,
-      itemName: 'Mini Butter Croissants',
-      itemPrice: '₹129',
-      originalPrice: '₹149',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/croissants.jpg?ts=1709800030',
-      weight: '1 pack',
-      rating: 4.2,
-      reviews: '10.0k'
-    },
-    {
-      id: 4,
-      itemName: 'Chili Cheese Toast',
-      itemPrice: '₹169',
-      originalPrice: '₹189',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/cheese_toast.jpg?ts=1709800030',
-      weight: '1 piece',
-      rating: 4.2,
-      reviews: '11.7k'
-    },
-    {
-      id: 5,
-      itemName: 'Chocolate Mousse',
-      itemPrice: '₹115',
-      originalPrice: '₹129',
-      discount: '₹14 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/chocolate_mousse.jpg?ts=1709800030',
-      weight: 'Serves 1',
-      rating: 4.2,
-      reviews: '20.2k'
-    },
-    {
-      id: 1,
-      itemName: 'Kesari Rasmalai',
-      itemPrice: '₹169',
-      originalPrice: '₹189',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/rasmalai.jpg?ts=1709800030',
-      weight: '2 pieces',
-      rating: 4.6,
-      reviews: '14.6k'
-    },
-    {
-      id: 7,
-      itemName: 'Hazelnut Cold Coffee',
-      itemPrice: '₹169',
-      originalPrice: '₹189',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/hazelnut_coffee.jpg?ts=1709800030',
-      weight: '450 ml',
-      rating: 4.5,
-      reviews: '995'
-    }
-  ];
-
-  const newlyLaunched = [
-    {
-      id: 1,
-      itemName: 'Veg Puff',
-      itemPrice: '₹70',
-      originalPrice: '₹79',
-      discount: '₹9 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/veg_puff.jpg?ts=1709800030',
-      weight: '1 Piece',
-      rating: 4.4,
-      reviews: '72.4k'
-    },
-    {
-      id: 2,
-      itemName: 'Adrak Chai',
-      itemPrice: '₹129',
-      originalPrice: '₹99',
-      discount: '₹10 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/chocolate_bao.jpg?ts=1709800030',
-      weight: '2 Pieces',
-      rating: 4.2,
-      reviews: '260'
-    }
-  ];
-
-  const bestsellers = [
-    {
-      id: 1,
-      itemName: 'Veg Puff',
-      itemPrice: '₹70',
-      originalPrice: '₹79',
-      discount: '₹9 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/veg_puff.jpg?ts=1709800030',
-      weight: '1 Piece',
-      rating: 4.4,
-      reviews: '72.4k'
-    },
-    {
-      id: 2,
-      itemName: 'Adrak Chai',
-      itemPrice: '₹129',
-      originalPrice: '₹149',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/adrak_chai.jpg?ts=1709800030',
-      weight: '250 ml',
-      rating: 4.2,
-      reviews: '22.5k'
-    },
-    {
-      id: 3,
-      itemName: 'Iced Americano',
-      itemPrice: '₹129',
-      originalPrice: '₹149',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/iced_americano.jpg?ts=1709800030',
-      weight: '450 ml',
-      rating: 4.2,
-      reviews: '10.0k'
-    },
-    {
-      id: 4,
-      itemName: 'Spanish Coffee',
-      itemPrice: '₹169',
-      originalPrice: '₹189',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/spanish_coffee.jpg?ts=1709800030',
-      weight: '350 ml',
-      rating: 4.2,
-      reviews: '11.7k'
-    },
-    {
-      id: 5,
-      itemName: 'Poha',
-      itemPrice: '₹115',
-      originalPrice: '₹129',
-      discount: '₹14 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/poha.jpg?ts=1709800030',
-      weight: 'Serves 1',
-      rating: 4.2,
-      reviews: '20.2k'
-    },
-    {
-      id: 6,
-      itemName: 'Vietnamese Cold Coffee',
-      itemPrice: '₹189',
-      originalPrice: '₹209',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/vietnamese_coffee.jpg?ts=1709800030',
-      weight: '450 ml',
-      rating: 4.4,
-      reviews: '117.5k'
-    }
-  ];
-
-  const snackTime = [
-    {
-      id: 1,
-      itemName: 'Bun Maska',
-      itemPrice: '₹89',
-      originalPrice: '₹99',
-      discount: '₹10 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/bun_maska.jpg?ts=1709800030',
-      weight: '1 Piece',
-      rating: 4.4,
-      reviews: '72.4k'
-    },
-    {
-      id: 2,
-      itemName: 'Veg Puff',
-      itemPrice: '₹70',
-      originalPrice: '₹79',
-      discount: '₹9 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/veg_puff.jpg?ts=1709800030',
-      weight: '1 Piece',
-      rating: 4.4,
-      reviews: '72.4k'
-    },
-    {
-      id: 3,
-      itemName: 'Chicken Puff',
-      itemPrice: '₹80',
-      originalPrice: '₹89',
-      discount: '₹9 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/chicken_puff.jpg?ts=1709800030',
-      weight: '1 Piece',
-      rating: 4.3,
-      reviews: '83.6k'
-    },
-    {
-      id: 4,
-      itemName: 'Cheese Maggi',
-      itemPrice: '₹99',
-      originalPrice: '₹109',
-      discount: '₹10 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/cheese_maggi.jpg?ts=1709800030',
-      weight: '1 Portion',
-      rating: 4.3,
-      reviews: '100.0k'
-    },
-    {
-      id: 5,
-      itemName: 'Plain Maggi',
-      itemPrice: '₹79',
-      originalPrice: '₹89',
-      discount: '₹10 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/plain_maggi.jpg?ts=1709800030',
-      weight: '1 Portion',
-      rating: 4.3,
-      reviews: '97.8k'
-    },
-    {
-      id: 6,
-      itemName: 'Bhelpuri',
-      itemPrice: '₹119',
-      originalPrice: '₹139',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/large_images/jpeg/bhelpuri.jpg?ts=1709800030',
-      weight: '1 Portion',
-      rating: 4.3,
-      reviews: '42.5k'
-    }
   ];
 
   return (
@@ -314,10 +124,10 @@ const CafePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Featured Products Carousel */}
-        <ProductCarousel title="" products={cafeProducts} />
+        {/* Featured Products Carousel (dynamic) */}
+        <ProductCarousel title="" products={transformedProducts} />
 
-        {/* What's On Your Mind Section */}
+        {/* What's On Your Mind Section (static) */}
         <div className="mb-6">
           <h2 className="mb-4 text-xl font-bold text-gray-900">What's On Your Mind?</h2>
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
@@ -336,75 +146,25 @@ const CafePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Newly Launched Section */}
-        <div className="mb-6">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-              Newly Launched 
-              <span className="text-pink-500">✨</span>
-            </h2>
-            <button className="text-sm font-medium text-pink-500 hover:text-pink-600">
-              See All →
-            </button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {newlyLaunched.map((product, index) => (
-              <div key={`${product.itemName}-${index}`} className="flex-shrink-0">
-                <ProductCard {...product} />
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Cafe Product Grid (dynamic) */}
+        <ProductGrid title="Cafe Menu" products={transformedProducts} />
 
-        {/* Bestsellers Section */}
-        <div className="mb-6">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-              Bestsellers 
-              <span className="text-purple-500">⭐</span>
-            </h2>
-            <div className="rounded-lg bg-pink-100 px-4 py-2">
-              <button 
-                onClick={() => navigate('/cafe-bestsellers')}
-                className="cursor-pointer text-sm font-medium text-pink-500 hover:text-pink-600"
-              >
-                See all →
-              </button>
-            </div>
+        {/* Loading/Error/Empty States */}
+        {loading && (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {bestsellers.map((product, index) => (
-              <div key={`${product.itemName}-${index}`} className="flex-shrink-0">
-                <ProductCard {...product} />
-              </div>
-            ))}
+        )}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
           </div>
-        </div>
-
-        {/* Snack Time Section */}
-        <div className="mb-6">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-              Snack Time 
-              <span className="text-orange-500">🍿</span>
-            </h2>
-            <div className="rounded-lg bg-pink-100 px-4 py-2">
-              <button 
-                onClick={() => navigate('/cafe-snacks')}
-                className="cursor-pointer text-sm font-medium text-pink-500 hover:text-pink-600"
-              >
-                See all →
-              </button>
-            </div>
+        )}
+        {!loading && !error && transformedProducts.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            No cafe products available at the moment.
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {snackTime.map((product, index) => (
-              <div key={`${product.itemName}-${index}`} className="flex-shrink-0">
-                <ProductCard {...product} />
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

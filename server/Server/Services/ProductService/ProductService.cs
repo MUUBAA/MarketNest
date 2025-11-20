@@ -3,7 +3,6 @@ using Server.Data.Contract.Products;
 using Server.Data.Dto;
 using Server.Data.Entities.Products;
 using Server.Data.Repositories;
-using Server.Services.CloudinaryService;
 using static Server.Data.Exceptions.DataExceptions;
 
 namespace Server.Services.ProductService

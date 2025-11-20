@@ -6,11 +6,11 @@ using Server.Data.Repositories;
 using Server.Services;
 using Server.Services.AuthService;
 using Server.Services.MessageServices;
-using Server.Services.CloudinaryService;
 using Server.Services.ProductService;
 using Server.Services.Cache;
 using Server.Utils;
 using Server.Services.CartServices;
+using Server.Services.PaymentService;
 
 namespace Server.Utils
 {
@@ -51,11 +51,12 @@ namespace Server.Utils
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IEmailTemplate, EmailTemplate>();
-            services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IProductsRepository, ProductsRepository>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ICartServices, CartServices>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IPaymentService , PaymentService>();
 
             return Task.CompletedTask;
         }

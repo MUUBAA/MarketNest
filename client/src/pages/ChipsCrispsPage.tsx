@@ -1,68 +1,64 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '../../redux/stores/index.tsx';
+import { fetchAllProducts, type GetAllProductsPayload } from '../../redux/thunk/product.tsx';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import type { Product } from '../../redux/slices/productsSlice.tsx';
 
 const ChipsCrispsPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
+  const { loading, error } = useSelector((state: RootState) => state.products);
 
-  const products = [
-    {
-      id: 1,
-      itemName: 'Uncle Chips Spicy Treat',
-      itemPrice: '₹30',
-      originalPrice: '₹50',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/185a.jpg?ts=1688463558',
-      rating: 4.7,
-      reviews: '73.6k',
-      weight: '1 pack (80 g)',
-    },
-    {
-      id: 2,
-      itemName: 'Lays Classic Salted',
-      itemPrice: '₹35',
-      originalPrice: '₹55',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/186a.jpg?ts=1688463558',
-      rating: 4.6,
-      reviews: '85.2k',
-      weight: '1 pack (90 g)',
-    },
-    {
-      id: 3,
-      itemName: 'Bingo Mad Angles',
-      itemPrice: '₹28',
-      originalPrice: '₹45',
-      discount: '₹17 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/187a.jpg?ts=1688463558',
-      rating: 4.5,
-      reviews: '62.8k',
-      weight: '1 pack (75 g)',
-    },
-    {
-      id: 4,
-      itemName: 'Kurkure Masala Munch',
-      itemPrice: '₹32',
-      originalPrice: '₹50',
-      discount: '₹18 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/188a.jpg?ts=1688463558',
-      rating: 4.7,
-      reviews: '78.4k',
-      weight: '1 pack (85 g)',
-    },
-    {
-      id: 5,
-      itemName: 'Haldirams Aloo Bhujia',
-      itemPrice: '₹45',
-      originalPrice: '₹65',
-      discount: '₹20 OFF',
-      itemUrl: 'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/189a.jpg?ts=1688463558',
-      rating: 4.8,
-      reviews: '92.1k',
-      weight: '1 pack (200 g)',
-    },
-  ];
+  // Fetch chips & crisps products from API (categoryId=5 as example)
+  const FetchProducts = async () => {
+    try {
+      const preparePayload: GetAllProductsPayload = {
+        id: 0,
+        categoryId: 7, // Chips & Crisps category
+        itemName: '',
+        itemsPerPage: 20,
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: 0,
+        pageSize: 60
+      };
+      const response = await dispatch(fetchAllProducts(preparePayload));
+      if (response.meta.requestStatus === 'fulfilled') {
+        if (Array.isArray(response.payload)) {
+          setProducts(response.payload);
+        } else if (response.payload && typeof response.payload === 'object') {
+          setProducts(response?.payload?.items || []);
+        } else {
+          setProducts([]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+      setProducts([]);
+    }
+  };
+
+  useEffect(() => {
+    FetchProducts();
+  }, [dispatch]);
+
+  // Transform API products for ProductCard
+  const transformedProducts = products.map((product: Product) => ({
+    id: product.id,
+    itemName: product.itemName || 'Unknown Product',
+    itemPrice: product.itemPrice ? `₹${product.itemPrice}` : '₹0',
+    itemUrl: product.itemUrl || 'https://via.placeholder.com/150',
+    itemDescription: product.itemDescription || 'No description available',
+    originalPrice: product.itemPrice ? `₹${product.itemPrice + 20}` : undefined, // Example
+    discount: product.itemPrice ? `₹20 OFF` : undefined,
+    rating: 4.2, // Placeholder, replace with real if available
+    reviews: '1k', // Placeholder, replace with real if available
+    weight: '1 pack', // Placeholder, replace with real if available
+  }));
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24">
@@ -81,11 +77,26 @@ const ChipsCrispsPage: React.FC = () => {
 
       <div className="p-4">
         {/* Products grid */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
-          {products.map((product, index) => (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+          {transformedProducts.map((product, index) => (
             <ProductCard key={`${product.itemName}-${index}`} {...product} />
           ))}
         </div>
+        {loading && (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          </div>
+        )}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
+        {!loading && !error && transformedProducts.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            No products available at the moment.
+          </div>
+        )}
       </div>
     </div>
   );

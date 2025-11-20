@@ -51,15 +51,6 @@ const Footer: React.FC = () => {
           <a href="#" className="block mt-1 text-gray-800 hover:underline">Terms of Use</a>
           <a href="#" className="block mt-1 text-gray-800 hover:underline">Responsible Disclosure Policy</a>
         </div>
-        <div className="w-full md:w-1/3">
-          <h3 className="font-bold">Download App</h3>
-          <div className="mt-2">
-            <img src="https://i.ibb.co/GQLD9DP/google-play.png" alt="Get it on Google Play" className="w-36" />
-          </div>
-          <div className="mt-2">
-            <img src="https://i.ibb.co/rfn23Y3/app-store.png" alt="Download on the App Store" className="w-36" />
-          </div>
-        </div>
       </div>
     </div>
   );
