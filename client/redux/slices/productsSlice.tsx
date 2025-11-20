@@ -17,6 +17,7 @@ export interface Product {
     isDeleted: boolean;
     deletedAt: string | null;
     deletedBy: string | null;
+    pageSize?: number;
 }
 
 interface ProductState {

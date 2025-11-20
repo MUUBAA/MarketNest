@@ -16,6 +16,18 @@ namespace Server.Data.Entities.Payments
         public string PaymentMethod { get; set; } = string.Empty;
 
         [Column("status")]
-        public bool Status { get; set; }
+        public string Status { get; set; } = "pending";
+
+        [Column("razorpay_order_id")]
+        public string RazorpayOrderId { get; set; } = string.Empty;
+
+        [Column("razorpay_payment_id")]
+        public string RazorpayPaymentId { get; set; } = string.Empty;
+
+        [Column("razorpay_signature")]
+        public string RazorpaySignature { get; set; } = string.Empty;
+
+        [Column("error_message")]
+        public string ErrorMessage { get; set; } = string.Empty;
     }
 }
