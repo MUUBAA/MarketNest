@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HomePage from "./pages/HomePage";
+import SearchResultsPage from "./pages/SearchResultsPage";
 import ListPage from "./pages/ListPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CategoryPage from "./pages/CategoryPage";
@@ -107,6 +108,7 @@ function AppContent() {
         <Route path="/category/:category" element={<CategoryPage />} />
         <Route path="/list" element={<ListPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/search" element={<SearchResultsPage />} />
       </Routes>
       <Footer />
       <BottomNav />

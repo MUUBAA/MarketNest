@@ -6,6 +6,8 @@ import LocationModal from './LocationModal';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../redux/stores';
 import { getCartItems } from '../../redux/thunk/cart';
+
+import { useNavigate } from 'react-router-dom';
 import { getDecryptedJwt } from '../../utils/auth';
 import { jwtDecode } from 'jwt-decode';
 
@@ -14,6 +16,21 @@ const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [isProfileSidebarOpen, setIsProfileSidebarOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const trimmed = searchTerm.trim();
+      if (trimmed.length > 0) {
+        navigate(`/search?query=${encodeURIComponent(trimmed)}`);
+      } else {
+        navigate('/'); // Reset search results page
+      }
+    }
+  };
 
   // Total items in cart (sum of quantities)
   const cartCount = useSelector((state: RootState) => {
@@ -82,6 +99,9 @@ const Header: React.FC = () => {
                 type="text"
                 placeholder="Search for 'kurkure'"
                 className="w-full rounded-xl border border-gray-300 bg-gray-100 py-2 pl-10 pr-4 focus:border-red-500 focus:ring-red-500"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchKeyDown}
               />
             </div>
           </div>
