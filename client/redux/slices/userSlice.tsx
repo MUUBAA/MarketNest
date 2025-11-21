@@ -1,18 +1,20 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { UserData } from "./loginUser";
-import { createUser } from "../thunk/user";
+import { createUser, getUserById } from "../thunk/user";
 
 
 interface User {
     id: number;
     name: string;
     email: string;
+    address?: string;
 }
 
 export interface UserResponse {
     id: number;
     name: string;
     email: string;
+    address?: string;
 }
 
 interface UserState {
@@ -52,6 +54,18 @@ const userSlice = createSlice({
                 state.loading = false;
             })
             .addCase(createUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            })
+            .addCase(getUserById.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getUserById.fulfilled, (state, action) => {
+                state.loading = false;
+                state.UserAccount = action.payload;
+            })
+            .addCase(getUserById.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             });

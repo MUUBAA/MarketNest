@@ -1,20 +1,53 @@
-import React, { useState } from 'react';
-import { X, Package, MapPin, User, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { X, Package, MapPin, User, ChevronRight } from "lucide-react";
+import { getUserById } from "../../redux/thunk/user";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../redux/stores";
 
 interface UserProfileSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type SidebarView = 'main' | 'orders' | 'address' | 'profile';
+type SidebarView = "main" | "orders" | "address" | "profile";
 
-const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose }) => {
-  const [currentView, setCurrentView] = useState<SidebarView>('main');
+const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const [currentView, setCurrentView] = useState<SidebarView>("main");
+  const { UserAccount, loading } = useSelector(
+    (state: RootState) => state.user
+  );
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+    address: "",
+  });
 
   const handleBackToMain = () => {
-    setCurrentView('main');
+    setCurrentView("main");
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const userId = 2; // TEMP: your real logged-in user id goes here
+
+    dispatch(getUserById({ id: userId }));
+  }, [isOpen, dispatch]);
+
+  // 🔹 2) Sync local state when UserAccount changes
+  useEffect(() => {
+    if (UserAccount) {
+      setValues({
+        name: UserAccount.name,
+        email: UserAccount.email,
+        address: UserAccount.address || "",
+      });
+    }
+  }, [UserAccount]);
   const renderMainView = () => (
     <div className="p-6">
       {/* User Profile Header */}
@@ -23,15 +56,18 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
           <User className="h-8 w-8 text-white" />
         </div>
         <div className="ml-4">
-          <h3 className="text-lg font-semibold text-gray-900">Muba</h3>
-          <p className="text-gray-600">7868982095</p>
+          {/* // in renderMainView() */}
+          <h3 className="text-lg font-semibold text-gray-900">
+            {values.name || "Guest"}
+          </h3>
+          <p className="text-gray-600">{values.email}</p>
         </div>
       </div>
 
       {/* Menu Items */}
       <div className="space-y-2">
         <button
-          onClick={() => setCurrentView('orders')}
+          onClick={() => setCurrentView("orders")}
           className="w-full flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center">
@@ -42,7 +78,7 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
         </button>
 
         <button
-          onClick={() => setCurrentView('address')}
+          onClick={() => setCurrentView("address")}
           className="w-full flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center">
@@ -53,7 +89,7 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
         </button>
 
         <button
-          onClick={() => setCurrentView('profile')}
+          onClick={() => setCurrentView("profile")}
           className="w-full flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center">
@@ -82,7 +118,9 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
           </div>
           <div className="absolute w-4 h-4 bg-red-500 rounded-full -mt-2 -mr-2"></div>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders yet</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          No orders yet
+        </h3>
         <button className="mt-6 cursor-pointer px-6 py-2 border border-purple-500 text-purple-500 rounded-lg hover:bg-purple-50 transition-colors">
           Browse products
         </button>
@@ -100,7 +138,9 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
 
       {/* Saved Addresses Section */}
       <div className="mb-6">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Saved Addresses</h4>
+        <h4 className="text-lg font-semibold text-gray-900 mb-4">
+          Saved Addresses
+        </h4>
       </div>
 
       {/* No Address State */}
@@ -110,8 +150,16 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
           <div className="absolute w-2 h-2 bg-red-500 rounded-full -mt-4 -ml-2"></div>
           <div className="absolute w-1 h-1 bg-purple-500 rounded-full mt-2 ml-4"></div>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">No Address Added</h3>
-        <p className="text-gray-600 text-sm">To see the saved address here, add your work or home address</p>
+        {loading ? (
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            Loading address...
+          </h3>
+        ) : (
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            {values.address || "No address available"}
+          </h3>
+        )}
+        {/* <p className="text-gray-600 text-sm">To see the saved address here, add your work or home address</p> */}
       </div>
     </div>
   );
@@ -120,22 +168,29 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
     <div className="p-6">
       <form className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Name
+          </label>
           <input
             type="text"
-            defaultValue="Muba"
+            value={values.name}
+            onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email
+          </label>
           <input
             type="email"
-            placeholder="Enter your email"
+            value={values.email}
+            onChange={(e) =>
+              setValues((v) => ({ ...v, email: e.target.value }))
+            }
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
           />
-          <p className="text-sm text-gray-500 mt-1">We promise not to spam you</p>
         </div>
 
         <button
@@ -150,7 +205,8 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
       <div className="mt-8 pt-6 border-t border-gray-200">
         <h4 className="text-pink-500 font-semibold mb-2">Delete Account</h4>
         <p className="text-gray-600 text-sm">
-          Deleting your account will remove all your orders, wallet amount and any active referral
+          Deleting your account will remove all your orders, wallet amount and
+          any active referral
         </p>
       </div>
     </div>
@@ -158,10 +214,14 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
 
   const getHeaderTitle = () => {
     switch (currentView) {
-      case 'orders': return 'Orders';
-      case 'address': return 'Address';
-      case 'profile': return 'Profile';
-      default: return 'Settings';
+      case "orders":
+        return "Orders";
+      case "address":
+        return "Address";
+      case "profile":
+        return "Profile";
+      default:
+        return "Settings";
     }
   };
 
@@ -169,36 +229,38 @@ const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({ isOpen, onClose
     <>
       {/* Backdrop Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
           onClick={onClose}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div 
+      <div
         className={`fixed top-0 left-0 h-full w-full max-w-sm bg-white shadow-2xl z-50 transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <button 
-            onClick={currentView !== 'main' ? handleBackToMain : onClose}
+          <button
+            onClick={currentView !== "main" ? handleBackToMain : onClose}
             className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
           >
             <X className="h-5 w-5 text-gray-600" />
           </button>
-          <h2 className="text-lg font-semibold text-gray-900">{getHeaderTitle()}</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            {getHeaderTitle()}
+          </h2>
           <div className="w-8" />
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          {currentView === 'main' && renderMainView()}
-          {currentView === 'orders' && renderOrdersView()}
-          {currentView === 'address' && renderAddressView()}
-          {currentView === 'profile' && renderProfileView()}
+          {currentView === "main" && renderMainView()}
+          {currentView === "orders" && renderOrdersView()}
+          {currentView === "address" && renderAddressView()}
+          {currentView === "profile" && renderProfileView()}
         </div>
       </div>
     </>

@@ -53,7 +53,7 @@ interface GetUserByIdPayload {
 }
 
 export const getUserById = createAsyncThunk<
-  { id: number; name: string; email: string },
+  { id: number; name: string; email: string, address?: string },
   GetUserByIdPayload
 >("users/getById", async (payload, { rejectWithValue }) => {
   try {
@@ -79,7 +79,7 @@ export const getUserById = createAsyncThunk<
       }
     );
 
-    return response.data;
+    return response.data.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return rejectWithValue(
